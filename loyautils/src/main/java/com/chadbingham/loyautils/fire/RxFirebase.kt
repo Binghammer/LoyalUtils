@@ -8,8 +8,9 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.util.concurrent.Executors
 
-object ReferenceProvider {
-    var reference: DatabaseReference? = null
+object FirebaseReferenceProvider {
+    var database: FirebaseDatabase? = FirebaseDatabase.getInstance()
+    var reference = database?.reference
 }
 
 interface Mapper<T, R> {
@@ -47,7 +48,7 @@ class Mappers {
 class RxFirebase<T>(private val mapper: SnapshotMapper<T>, private val query: Query) {
 
     constructor(mapper: SnapshotMapper<T>, vararg children: String) : this(mapper,
-            ReferenceProvider.reference!!.child(children.joinToString(separator = "/")))
+            FirebaseReferenceProvider.reference!!.child(children.joinToString(separator = "/")))
 
     fun keepSynced() = query.keepSynced(true)
 
