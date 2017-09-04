@@ -7,6 +7,7 @@ import com.google.firebase.database.*
 import io.reactivex.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.CompletableSubject
 import timber.log.Timber
 import java.util.concurrent.Executors
 
@@ -124,23 +125,21 @@ class RxFirebase<T>(private val mapper: SnapshotMapper<T>, private val query: Qu
     }
 
     fun removeValue(): Completable {
-        return Completable
-                .create { e ->
-                    query.ref.removeValue()
-                            .addOnCompleteListener({ e.onComplete() })
-                            .addOnFailureListener({ e.onError(it) })
-                }
-                .compose(Schedule.completable())
+        //return subject so subscribing isn't required to execute
+        val subject = CompletableSubject.create()
+        query.ref.removeValue()
+                .addOnCompleteListener({ subject.onComplete() })
+                .addOnFailureListener({ subject.onError(it) })
+        return subject
     }
 
     fun setValue(any: Any): Completable {
-        return Completable
-                .create { e ->
-                    query.ref.setValue(any)
-                            .addOnCompleteListener({ e.onComplete() })
-                            .addOnFailureListener({ e.onError(it) })
-                }
-                .compose(Schedule.completable())
+        //return subject so subscribing isn't required to execute
+        val subject = CompletableSubject.create()
+        query.ref.setValue(any)
+                .addOnCompleteListener({ subject.onComplete() })
+                .addOnFailureListener({ subject.onError(it) })
+        return subject
     }
 
     fun countChildren(): Single<Long> = FireListeners
