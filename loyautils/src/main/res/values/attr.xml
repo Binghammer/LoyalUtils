@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="FloatingTextView">
+    <declare-styleable name="DynamicTextView">
         <attr name="android:hint"/>
         <attr name="android:inputType"/>
         <attr name="android:maxLines"/>
