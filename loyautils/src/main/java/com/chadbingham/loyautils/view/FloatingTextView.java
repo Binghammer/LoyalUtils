@@ -64,8 +64,8 @@ public class FloatingTextView extends FrameLayout implements View.OnTouchListene
 	public FloatingTextView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		inflate(context, R.layout.view_float_edit_text, this);
-		editText = (TextInputEditText) findViewById(R.id.floatText);
-		layout = (TextInputLayout) findViewById(R.id.floatLayout);
+		editText = findViewById(R.id.floatText);
+		layout = findViewById(R.id.floatLayout);
 
 		final TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.FloatingTextView);
 		final String hint = ta.getString(R.styleable.FloatingTextView_android_hint);
