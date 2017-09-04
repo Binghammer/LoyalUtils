@@ -1,3 +1,5 @@
+@file:Suppress("MemberVisibilityCanPrivate", "unused")
+
 package com.chadbingham.loyautils.fire
 
 import com.chadbingham.loyautils.rx.Event
@@ -11,32 +13,33 @@ import java.util.concurrent.Executors
 object FirebaseReferenceProvider {
     var database: FirebaseDatabase? = FirebaseDatabase.getInstance()
     var reference = database?.reference
+        private set
 }
 
-interface Mapper<T, R> {
+interface Mapper<in T, out R> {
     fun map(t: T): R
 }
 
-interface SnapshotMapper<R> : Mapper<DataSnapshot, R> {
-    override fun map(snapshot: DataSnapshot): R
+interface SnapshotMapper<out R> : Mapper<DataSnapshot, R> {
+    override fun map(t: DataSnapshot): R
 }
 
 class Mappers {
     companion object {
         val NONE = object : SnapshotMapper<DataSnapshot> {
-            override fun map(snapshot: DataSnapshot): DataSnapshot = snapshot
+            override fun map(t: DataSnapshot): DataSnapshot = t
         }
 
         val STRING_SET = object : SnapshotMapper<Set<String>> {
-            override fun map(snapshot: DataSnapshot): Set<String> {
+            override fun map(t: DataSnapshot): Set<String> {
                 val keys = mutableSetOf<String>()
-                if (snapshot.exists()) {
-                    if (snapshot.hasChildren()) {
-                        snapshot.children
+                if (t.exists()) {
+                    if (t.hasChildren()) {
+                        t.children
                                 .filter { it.key != null }
                                 .mapTo(keys) { it.key }
                     } else {
-                        keys.add(snapshot.key)
+                        keys.add(t.key)
                     }
                 }
                 return keys
@@ -148,20 +151,20 @@ class RxFirebase<T>(private val mapper: SnapshotMapper<T>, private val query: Qu
             .doOnError { e -> Timber.e("countChildren, path: %s\n%s", query, e.message) }
             .toSingle(0L)
 
-    fun childrenListener(): Observable<T> = FireListeners
+    fun childrenListener(): Flowable<T> = FireListeners
             .valueListener(query)
             .map { it.children }
-            .flatMap { Observable.fromIterable(it) }
+            .flatMap { Flowable.fromIterable(it) }
             .map { mapper.map(it) }
 
-    fun children(): Observable<T> = FireListeners
+    fun children(): Flowable<T> = FireListeners
             .singleValueListener(query)
             .filter { it.exists() }
             .map { it.children }
-            .flatMapObservable { Observable.fromIterable(it) }
+            .flatMapPublisher { Flowable.fromIterable(it) }
             .map { mapper.map(it) }
 
-    val valueListener: Observable<T>
+    val valueListener: Flowable<T>
         get() = FireListeners.valueListener(query).map { mapper.map(it) }
 
     val singleListener: Single<T>
@@ -208,8 +211,8 @@ class RxFirebase<T>(private val mapper: SnapshotMapper<T>, private val query: Qu
 
 internal object FireListeners {
 
-    fun valueListener(query: Query): Observable<DataSnapshot> {
-        return Observable
+    fun valueListener(query: Query): Flowable<DataSnapshot> {
+        return Flowable
                 .create<DataSnapshot>({ e ->
                     query.addValueEventListener(object : ValueEventListener {
                         override fun onDataChange(ds: DataSnapshot) {
@@ -223,8 +226,8 @@ internal object FireListeners {
                             e.onComplete()
                         }
                     })
-                })
-                .compose(Schedule.observable())
+                }, BackpressureStrategy.BUFFER)
+                .compose(Schedule.flowable())
     }
 
     fun singleValueListener(query: Query): Single<DataSnapshot> {
@@ -302,16 +305,8 @@ internal object Schedule {
         return FlowableTransformer { upstream -> upstream.subscribeOn(scheduler).observeOn(AndroidSchedulers.mainThread()) }
     }
 
-    fun <T> observable(): ObservableTransformer<T, T> {
-        return ObservableTransformer { o -> o.subscribeOn(scheduler).observeOn(AndroidSchedulers.mainThread()) }
-    }
-
     fun <T> single(): SingleTransformer<T, T> {
         return SingleTransformer { o -> o.subscribeOn(scheduler).observeOn(AndroidSchedulers.mainThread()) }
-    }
-
-    fun <T> maybe(): MaybeTransformer<T, T> {
-        return MaybeTransformer { o -> o.subscribeOn(scheduler).observeOn(AndroidSchedulers.mainThread()) }
     }
 
     fun completable(): CompletableTransformer {
