@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="FloatingTextView">
+        <attr name="android:hint"/>
+        <attr name="android:inputType"/>
+        <attr name="android:maxLines"/>
+        <attr name="android:minLines"/>
+        <attr name="android:lines"/>
+        <attr name="android:textSize"/>
+        <attr name="android:text"/>
+    </declare-styleable>
+</resources>

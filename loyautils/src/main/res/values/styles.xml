@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="float_error_appearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/red</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="float_hint_appearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">?colorPrimaryDark</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="AlertDialogAnimations">
+        <item name="android:windowEnterAnimation">@anim/slide_in_from_top</item>
+        <item name="android:windowExitAnimation">@anim/slide_out_to_bottom</item>
+    </style>
+
+</resources>

@@ -1,6 +1,7 @@
 package com.chadbingham.loyautils.view
 
 import android.view.View
+import android.widget.TextView
 import io.reactivex.Observable
 
 fun View.clicks(): Observable<View> {
@@ -32,4 +33,8 @@ fun View.visible() {
 
 fun View.gone() {
     visibility = View.GONE
+}
+
+fun TextView.getString(): String {
+    return text?.toString() ?: ""
 }
