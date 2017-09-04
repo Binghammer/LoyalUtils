@@ -1,8 +1,14 @@
 package com.chadbingham.loyautils.view
 
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import io.reactivex.Observable
+
+fun ViewGroup.inflate(layout: Int): View {
+    return LayoutInflater.from(context).inflate(layout, this, false)
+}
 
 fun View.clicks(): Observable<View> {
     return Observable.create({
