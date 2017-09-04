@@ -1,8 +1,16 @@
 package com.chadbingham.loyautils.view
 
 import android.view.View
+import io.reactivex.Observable
 
-fun View.clicks() : Observable{
+fun View.clicks(): Observable<View> {
+    return Observable.create({
+        setOnClickListener { _ ->
+            it.onNext(this)
+        }
+
+        it.setCancellable({ setOnClickListener(null) })
+    })
 
 }
 
