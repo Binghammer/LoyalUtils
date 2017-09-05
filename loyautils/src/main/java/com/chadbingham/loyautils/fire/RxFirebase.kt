@@ -31,6 +31,12 @@ class Mappers {
             override fun map(t: DataSnapshot): DataSnapshot = t
         }
 
+        val LONG = object : SnapshotMapper<Long> {
+            override fun map(t: DataSnapshot): Long {
+                return t.getValue(true) as Long
+            }
+        }
+
         val STRING_SET = object : SnapshotMapper<Set<String>> {
             override fun map(t: DataSnapshot): Set<String> {
                 val keys = mutableSetOf<String>()
@@ -137,7 +143,14 @@ class RxFirebase<T>(private val mapper: SnapshotMapper<T>, private val query: Qu
         //return subject so subscribing isn't required to execute
         val subject = CompletableSubject.create()
         query.ref.setValue(any)
-                .addOnCompleteListener({ subject.onComplete() })
+                .addOnCompleteListener({
+                    if (!subject.hasComplete() && !subject.hasThrowable())
+                        subject.onComplete()
+                })
+                .addOnSuccessListener({
+                    if (!subject.hasComplete() && !subject.hasThrowable())
+                        subject.onComplete()
+                })
                 .addOnFailureListener({ subject.onError(it) })
         return subject
     }
