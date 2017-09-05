@@ -114,6 +114,17 @@ class RxFirebase<T>(private val mapper: SnapshotMapper<T>, private val query: Qu
         return RxFirebase(mapper, query.startAt(child, key))
     }
 
+    fun pushValue(t: T): String {
+        val ref = query.ref.push()
+        val key = ref.key
+        ref.setValue(t)
+        return key
+    }
+
+    fun orderByKey(): RxFirebase<T> {
+        return RxFirebase(mapper, query.orderByKey())
+    }
+
     fun orderByChild(key: String): RxFirebase<T> {
         return RxFirebase(mapper, query.orderByChild(key))
     }
