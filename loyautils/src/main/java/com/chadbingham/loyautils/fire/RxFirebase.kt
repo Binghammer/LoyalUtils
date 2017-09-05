@@ -94,18 +94,14 @@ class RxFirebase<T>(private val mapper: SnapshotMapper<T>, private val query: Qu
                 .endAt(first + "~"))
     }
 
-    fun startAt(key: String?): RxFirebase<T> {
-        return if (key != null && key.isNotBlank()) {
+    fun startAt(key: String): RxFirebase<T> {
+        return if (key.isNotBlank()) {
             RxFirebase(mapper, query.startAt(key))
         } else RxFirebase(mapper, query)
     }
 
-    fun startAt(key: Char): RxFirebase<T> {
-        return RxFirebase(mapper, query.startAt(key.toString()))
-    }
-
-    fun endAt(key: String?): RxFirebase<T> {
-        return if (key != null && key.isNotBlank()) {
+    fun endAt(key: String): RxFirebase<T> {
+        return if (key.isNotBlank()) {
             RxFirebase(mapper, query.endAt(key))
         } else RxFirebase(mapper, query)
     }
@@ -123,6 +119,10 @@ class RxFirebase<T>(private val mapper: SnapshotMapper<T>, private val query: Qu
 
     fun orderByKey(): RxFirebase<T> {
         return RxFirebase(mapper, query.orderByKey())
+    }
+
+    fun orderByValue(): RxFirebase<T> {
+        return RxFirebase(mapper, query.orderByValue())
     }
 
     fun orderByChild(key: String): RxFirebase<T> {
