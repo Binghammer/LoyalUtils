@@ -137,6 +137,17 @@ class RxFirebase<T>(private val mapper: SnapshotMapper<T>, private val query: Qu
         return RxFirebase(mapper, query.startAt(child, key))
     }
 
+    fun push(): RxFirebase<T> {
+        return RxFirebase(mapper, query.ref.push())
+    }
+
+    fun push(t: T): String {
+        val ref = query.ref.push()
+        val key = ref.key
+        ref.setValue(t)
+        return key
+    }
+
     fun pushValue(t: T): String {
         val ref = query.ref.push()
         val key = ref.key
