@@ -58,6 +58,12 @@ class Mappers {
             }
         }
 
+        val BOOLEAN = object: SnapshotMapper<Boolean> {
+            override fun map(t: DataSnapshot): Boolean {
+                return t.getValue(true) as Boolean
+            }
+        }
+
         val STRING_SET = object : SnapshotMapper<Set<String>> {
             override fun map(t: DataSnapshot): Set<String> {
                 val keys = mutableSetOf<String>()
