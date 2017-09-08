@@ -14,19 +14,19 @@ sealed class Event<T>(val value: T?) {
 
     class Added<T>(value: T) : Event<T>(value) {
         override fun <R> map(mapper: Mapper<T, R>): Event<R> {
-            return Added(mapper.map(value!!))
+            return Added(mapper.map(value!!)!!)
         }
     }
 
     class Changed<T>(value: T) : Event<T>(value) {
         override fun <R> map(mapper: Mapper<T, R>): Event<R> {
-            return Changed(mapper.map(value!!))
+            return Changed(mapper.map(value!!)!!)
         }
     }
 
     class Removed<T>(value: T) : Event<T>(value) {
         override fun <R> map(mapper: Mapper<T, R>): Event<R> {
-            return Removed(mapper.map(value!!))
+            return Removed(mapper.map(value!!)!!)
         }
     }
 
