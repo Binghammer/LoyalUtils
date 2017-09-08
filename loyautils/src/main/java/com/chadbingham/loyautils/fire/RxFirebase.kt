@@ -18,15 +18,24 @@ object FirebaseReferenceProvider {
 }
 
 interface Mapper<in T, out R> {
-    fun map(t: T): R
+    fun map(t: T): R?
 }
 
 interface SnapshotMapper<out R> : Mapper<DataSnapshot, R> {
-    override fun map(t: DataSnapshot): R
+    override fun map(t: DataSnapshot): R?
 }
 
 class Mappers {
     companion object {
+
+        fun<T> DEFAULT(clazz: Class<T>): SnapshotMapper<T> {
+            return object : SnapshotMapper<T> {
+                override fun map(t: DataSnapshot): T? {
+                    return t.getValue(clazz)
+                }
+            }
+        }
+
         val NONE = object : SnapshotMapper<DataSnapshot> {
             override fun map(t: DataSnapshot): DataSnapshot = t
         }
@@ -155,8 +164,17 @@ class RxFirebase<T>(private val mapper: SnapshotMapper<T>, private val query: Qu
         val subject = CompletableSubject.create()
         query.ref.setValue(any)
                 .addOnCompleteListener({
-                    if (!subject.hasComplete() && !subject.hasThrowable())
-                        subject.onComplete()
+                    if (!subject.hasComplete() && !subject.hasThrowable()) {
+                        if (it.isSuccessful) {
+                            subject.onComplete()
+                        } else {
+                            if (it.exception != null) {
+                                subject.onError(it.exception!!)
+                            } else {
+                                subject.onError(Exception())
+                            }
+                        }
+                    }
                 })
                 .addOnSuccessListener({
                     if (!subject.hasComplete() && !subject.hasThrowable())
@@ -196,7 +214,7 @@ class RxFirebase<T>(private val mapper: SnapshotMapper<T>, private val query: Qu
                 .toObservable()
                 .filter { it.exists() }
                 .filter { it.hasChildren() }
-                .map { mapper.map(it) }
+                .map { mapper.map(it) ?: throw Exception("Object not found at ${query.ref}") }
                 .singleOrError()
                 .doOnError({ e -> Timber.e("getSingleListener: Path:%1\$s %2\$s", query, e.message) })
 
@@ -209,11 +227,14 @@ class RxFirebase<T>(private val mapper: SnapshotMapper<T>, private val query: Qu
                     } else if (!ds.hasChildren()) {
                         Timber.v("DataSnapshot doesn't have children: %s", ds.key)
                         false
+                    } else if (ds.getValue() == null){
+                        Timber.v("DataSnapshot doesn't have value: %s", ds.key)
+                        false
                     } else {
                         true
                     }
                 })
-                .map { mapper.map(it) }
+                .map { mapper.map(it)!! }
                 .doOnError({ e -> Timber.e("getMaybeListener: Path:%1\$s %2\$s", query, e.message) })
 
     val childEventListener: Flowable<Event<T>>
