@@ -28,7 +28,7 @@ interface SnapshotMapper<out R> : Mapper<DataSnapshot, R> {
 class Mappers {
     companion object {
 
-        fun<T> DEFAULT(clazz: Class<T>): SnapshotMapper<T> {
+        fun <T> DEFAULT(clazz: Class<T>): SnapshotMapper<T> {
             return object : SnapshotMapper<T> {
                 override fun map(t: DataSnapshot): T? {
                     return t.getValue(clazz)
@@ -43,6 +43,18 @@ class Mappers {
         val LONG = object : SnapshotMapper<Long> {
             override fun map(t: DataSnapshot): Long {
                 return t.getValue(true) as Long
+            }
+        }
+
+        val INT = object : SnapshotMapper<Int> {
+            override fun map(t: DataSnapshot): Int {
+                return t.getValue(true) as Int
+            }
+        }
+
+        val STRING = object : SnapshotMapper<String> {
+            override fun map(t: DataSnapshot): String {
+                return t.getValue(true) as String
             }
         }
 
@@ -227,7 +239,7 @@ class RxFirebase<T>(private val mapper: SnapshotMapper<T>, private val query: Qu
                     } else if (!ds.hasChildren()) {
                         Timber.v("DataSnapshot doesn't have children: %s", ds.key)
                         false
-                    } else if (ds.getValue() == null){
+                    } else if (ds.getValue() == null) {
                         Timber.v("DataSnapshot doesn't have value: %s", ds.key)
                         false
                     } else {
