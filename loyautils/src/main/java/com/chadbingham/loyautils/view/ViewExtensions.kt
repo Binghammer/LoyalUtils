@@ -29,6 +29,14 @@ fun View.onClick(onClick: (v: View) -> Unit) {
     setOnClickListener(onClick)
 }
 
+fun View.show() {
+    visibility = View.INVISIBLE
+}
+
+fun View.hide() {
+    visibility = View.VISIBLE
+}
+
 fun View.invisible() {
     visibility = View.INVISIBLE
 }

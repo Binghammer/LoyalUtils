@@ -251,13 +251,13 @@ class RxFirebase<T>(private val mapper: SnapshotMapper<T>, private val query: Qu
         get() = FireListeners.singleValueListener(query)
                 .filter({ ds ->
                     if (!ds.exists()) {
-                        Timber.v("DataSnapshot doesn't exist: %s", ds.key)
+                        Timber.v("DataSnapshot doesn't exist in path ${query.ref}")
                         false
                     } else if (!ds.hasChildren()) {
-                        Timber.v("DataSnapshot doesn't have children: %s", ds.key)
+                        Timber.v("DataSnapshot doesn't have children in path ${query.ref}")
                         false
                     } else if (ds.getValue() == null) {
-                        Timber.v("DataSnapshot doesn't have value: %s", ds.key)
+                        Timber.v("DataSnapshot doesn't have value in path ${query.ref}")
                         false
                     } else {
                         true
