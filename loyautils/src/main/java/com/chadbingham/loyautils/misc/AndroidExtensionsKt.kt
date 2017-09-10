@@ -2,6 +2,7 @@ package com.chadbingham.loyautils.misc
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.os.Build
@@ -26,6 +27,9 @@ fun Context.drawable(drawableId: Int): Drawable {
 }
 
 fun Context.bitmap(drawableId: Int): Bitmap {
+    val options = BitmapFactory.Options()
+    options.inScaled = false
+
     var drawable = ContextCompat.getDrawable(this, drawableId)
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
         drawable = DrawableCompat.wrap(drawable).mutate()
