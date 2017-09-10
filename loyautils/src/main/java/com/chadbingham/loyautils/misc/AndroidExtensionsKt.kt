@@ -43,3 +43,7 @@ fun Context.bitmap(drawableId: Int): Bitmap {
 
     return bitmap
 }
+
+fun Context.color(id: Int): Int {
+    return ContextCompat.getColor(this, id)
+}
