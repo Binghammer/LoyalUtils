@@ -30,11 +30,11 @@ fun View.onClick(onClick: (v: View) -> Unit) {
 }
 
 fun View.show() {
-    visibility = View.INVISIBLE
+    visibility = View.VISIBLE
 }
 
 fun View.hide() {
-    visibility = View.VISIBLE
+    visibility = View.INVISIBLE
 }
 
 fun View.invisible() {
