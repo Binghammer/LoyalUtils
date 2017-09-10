@@ -52,3 +52,17 @@ fun View.gone() {
 fun TextView.getString(): String {
     return text?.toString() ?: ""
 }
+
+fun View.setPadding(padding: Int) {
+    setPadding(padding, padding, padding, padding)
+}
+
+fun View.setMargins(margin: Int) {
+    val mlp = ViewGroup.MarginLayoutParams(layoutParams)
+    mlp.margins(margin)
+    layoutParams = mlp
+}
+
+fun ViewGroup.MarginLayoutParams.margins(margin: Int) {
+    setMargins(margin, margin, margin, margin)
+}
