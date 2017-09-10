@@ -13,3 +13,7 @@ fun runOnMain(block: () -> Unit) {
 inline fun whenNull(block: () -> Unit) {
     block()
 }
+
+fun IntRange.within(int: Int): Int {
+    return Math.max(first, Math.min(last, int))
+}
