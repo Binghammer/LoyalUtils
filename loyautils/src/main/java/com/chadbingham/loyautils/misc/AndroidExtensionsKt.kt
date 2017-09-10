@@ -47,3 +47,7 @@ fun Context.bitmap(drawableId: Int): Bitmap {
 fun Context.color(id: Int): Int {
     return ContextCompat.getColor(this, id)
 }
+
+fun Context.dimen(id: Int): Float {
+    return resources.getDimension(id)
+}
