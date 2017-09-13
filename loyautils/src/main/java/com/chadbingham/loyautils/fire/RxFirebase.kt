@@ -333,7 +333,7 @@ internal object FireListeners {
                             }
                         }
 
-                        override fun onChildAdded(ds: DataSnapshot?, s: String) {
+                        override fun onChildAdded(ds: DataSnapshot?, s: String?) {
                             ds?.let {
                                 if (it.exists()) {
                                     e.onNext(Event.Added(ds))
@@ -343,7 +343,7 @@ internal object FireListeners {
                             }
                         }
 
-                        override fun onChildChanged(ds: DataSnapshot?, s: String) {
+                        override fun onChildChanged(ds: DataSnapshot?, s: String?) {
                             ds?.let {
                                 if (ds.exists()) {
                                     e.onNext(Event.Changed(ds))
