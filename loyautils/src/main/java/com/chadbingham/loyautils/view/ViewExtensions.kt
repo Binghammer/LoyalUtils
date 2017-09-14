@@ -1,5 +1,6 @@
 package com.chadbingham.loyautils.view
 
+import android.graphics.Rect
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -65,4 +66,8 @@ fun View.setMargins(margin: Int) {
 
 fun ViewGroup.MarginLayoutParams.margins(margin: Int) {
     setMargins(margin, margin, margin, margin)
+}
+
+fun View.layout(rect: Rect) {
+    layout(rect.left, rect.top, rect.right, rect.bottom)
 }
