@@ -52,6 +52,12 @@ class Mappers {
             }
         }
 
+        val KEYS = object : SnapshotMapper<String> {
+            override fun map(t: DataSnapshot): String {
+                return t.key
+            }
+        }
+
         val STRING = object : SnapshotMapper<String> {
             override fun map(t: DataSnapshot): String {
                 return t.getValue(true) as String
