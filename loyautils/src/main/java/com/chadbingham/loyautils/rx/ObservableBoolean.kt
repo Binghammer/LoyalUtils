@@ -15,20 +15,20 @@ class ObservableBoolean(initial: Boolean = false) {
         subject.onNext(value)
     }
 
-    fun whenTrueSkipFirst(runnable: Runnable): Disposable {
-        return subject.skip(1).filter({ !it }).subscribe({ runnable.run() })
+    fun whenTrueSkipFirst(runnable: () -> Any?): Disposable {
+        return subject.skip(1).filter({ !it }).subscribe({ runnable() })
     }
 
-    fun whenFalseSkipFirst(runnable: Runnable): Disposable {
-        return subject.skip(1).filter({ it }).subscribe({ runnable.run() })
+    fun whenFalseSkipFirst(runnable: () -> Any?): Disposable {
+        return subject.skip(1).filter({ it }).subscribe({ runnable() })
     }
 
-    fun whenTrue(runnable: Runnable): Disposable {
-        return subject.filter({ it }).subscribe({ runnable.run() })
+    fun whenTrue(runnable: () -> Any?): Disposable {
+        return subject.filter({ it }).subscribe({ runnable() })
     }
 
-    fun whenFalse(runnable: Runnable): Disposable {
-        return subject.filter({ !it }).subscribe({ runnable.run() })
+    fun whenFalse(runnable: () -> Any?): Disposable {
+        return subject.filter({ !it }).subscribe({ runnable() })
     }
 
 }
