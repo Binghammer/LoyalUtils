@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/dialogTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        tools:text="Title Text"/>
+
+    <com.chadbingham.loyautils.view.DynamicTextView
+        android:id="@+id/dialogEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="@dimen/padding_reg"
+        android:paddingLeft="@dimen/padding_large"
+        android:paddingRight="@dimen/padding_large"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/buttonHeight"
+        android:gravity="right"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/bDelete"
+            style="@style/Button.Delete"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/buttonHeight"
+            android:text="@string/delete"/>
+
+        <Button
+            android:id="@+id/bCancel"
+            style="@style/Button.Cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/buttonHeight"
+            android:text="@android:string/cancel"/>
+
+        <Button
+            android:id="@+id/bSubmit"
+            style="@style/Button"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/buttonHeight"
+            android:text="@string/OK"/>
+
+    </LinearLayout>
+
+</LinearLayout>

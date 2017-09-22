@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">LoyaUtils</string>
+    <string name="exit_without_saving_title">Exit without saving?</string>
+    <string name="exit_without_saving_message">Are you sure you want to exit? All unsaved changes will be lost</string>
+    <string name="exit">exit</string>
+    <string name="stay">stay</string>
+    <string name="delete">delete</string>
+    <string name="yes">yes</string>
+    <string name="no">no</string>
+    <string name="OK">OK</string>
+    <string name="required">Required</string>
+    <string name="enter_text">Enter Text</string>
 </resources>

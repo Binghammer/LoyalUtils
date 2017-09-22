@@ -16,4 +16,46 @@
         <item name="android:windowExitAnimation">@anim/slide_out_to_bottom</item>
     </style>
 
+    <style name="PreferenceFragmentStyle">
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:divider">@drawable/divider_dark</item>
+    </style>
+
+    <style name="AlertDialogTheme" parent="AlertDialog.AppCompat">
+        <item name="android:windowEnterAnimation">@anim/slide_in_from_top</item>
+        <item name="android:windowExitAnimation">@anim/slide_out_to_bottom</item>
+    </style>
+
+    <style name="Button" parent="@android:style/Widget.Holo.Button">
+        <item name="android:textSize">16sp</item>
+        <item name="android:height">@dimen/buttonHeight</item>
+        <item name="android:layout_gravity">right</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:paddingLeft">@dimen/padding_large</item>
+        <item name="android:paddingRight">@dimen/padding_large</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/textDark</item>
+    </style>
+
+    <style name="Button.Cancel">
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/textCancel</item>
+    </style>
+
+    <style name="Button.Delete">
+        <item name="android:textColor">@color/red</item>
+    </style>
+
+    <style name="ButtonLayout">
+        <item name="android:height">@dimen/buttonHeight</item>
+        <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:gravity">right</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
 </resources>

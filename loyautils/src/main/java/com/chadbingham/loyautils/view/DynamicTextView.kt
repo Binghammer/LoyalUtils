@@ -120,7 +120,7 @@ class DynamicTextView @JvmOverloads constructor(context: Context, attrs: Attribu
         editText.inputType = type
     }
 
-    fun setText(text: String) {
+    fun setText(text: String?) {
         editText.setText(text)
         clearError()
     }
