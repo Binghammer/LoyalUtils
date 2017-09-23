@@ -50,10 +50,6 @@ fun Completable.scheduleCompletableMain(): Completable {
     return this.compose(ScheduleCompletable.main())
 }
 
-fun <T> Iterable<T>.joinToString(separator: CharSequence = ", ", transform: ((T) -> CharSequence)? = null): String {
-    return joinTo(StringBuilder(), separator, "", "", -1, "...", transform).toString()
-}
-
 fun <T> Single<T>.subscribeWithEmitter(e: SingleEmitter<T>) {
     subscribe({ e.onSuccess(it) }, { e.onError(it) })
 }
