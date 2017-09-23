@@ -1,9 +1,14 @@
 package com.chadbingham.loyautils.view
 
+import android.content.Context
 import android.graphics.Rect
+import android.support.design.widget.TextInputLayout
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.TextView
 import io.reactivex.Observable
 
@@ -50,9 +55,9 @@ fun View.gone() {
     visibility = View.GONE
 }
 
-fun TextView.getString(): String {
-    return text?.toString() ?: ""
-}
+fun TextView.getString(): String = text?.toString() ?: ""
+
+fun TextInputLayout.getString(): String = editText?.getString() ?: ""
 
 fun View.setPadding(padding: Int) {
     setPadding(padding, padding, padding, padding)
@@ -70,4 +75,27 @@ fun ViewGroup.MarginLayoutParams.margins(margin: Int) {
 
 fun View.layout(rect: Rect) {
     layout(rect.left, rect.top, rect.right, rect.bottom)
+}
+
+val Context.inputMethodManager: InputMethodManager
+    get() = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+
+fun View.hideSoftKeyboard() {
+    context.inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
+}
+
+fun EditText.showSoftKeyboard() {
+    if (requestFocus()) context.inputMethodManager.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
+}
+
+fun EditText.toggleSoftKeyboard() {
+    if (requestFocus()) context.inputMethodManager.toggleSoftInput(0, 0)
+}
+
+fun RecyclerView.ViewHolder.getString(id: Int): String {
+    return itemView.context.getString(id)
+}
+
+fun RecyclerView.ViewHolder.getString(id: Int, vararg values: Any): String {
+    return itemView.context.getString(id, values)
 }
