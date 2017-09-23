@@ -2,7 +2,7 @@
 
 package com.chadbingham.loyautils.fire
 
-import com.chadbingham.loyautils.rx.Event
+import com.chadbingham.loyautils.rx.*
 import com.google.firebase.database.*
 import io.reactivex.*
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -64,7 +64,7 @@ class Mappers {
             }
         }
 
-        val BOOLEAN = object: SnapshotMapper<Boolean> {
+        val BOOLEAN = object : SnapshotMapper<Boolean> {
             override fun map(t: DataSnapshot): Boolean {
                 return t.getValue(true) as Boolean
             }
@@ -274,7 +274,22 @@ class RxFirebase<T>(private val mapper: SnapshotMapper<T>, private val query: Qu
 
     val childEventListener: Flowable<Event<T>>
         get() = FireListeners.childEventListener(query)
-                .map { it.map(mapper) }
+                .map {
+                    val value = it.value?.let { mapper.map(it) }
+                    when (it) {
+                        is Event.Added -> AddedEvent(value!!)
+
+                        is Event.Changed -> ChangedEvent(value!!)
+
+                        is Event.Removed -> RemovedEvent(value)
+
+                        is Event.Empty -> EmptyEvent()
+
+                        is Event.Canceled -> CancelledEvent()
+
+                        else -> error("Unknown Event: $it")
+                    }
+                }
                 .doOnError({ e -> Timber.e("getChildEventListener: Path:%1\$s %2\$s", query, e.message) })
 
     fun log(): RxFirebase<T> {

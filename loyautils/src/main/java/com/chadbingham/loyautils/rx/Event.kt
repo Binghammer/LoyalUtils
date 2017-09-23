@@ -1,43 +1,33 @@
 package com.chadbingham.loyautils.rx
 
-import com.chadbingham.loyautils.fire.Mapper
+typealias EmptyEvent<T> = Event.Empty<T>
+typealias OriginalEvent<T> = Event.Original<T>
+typealias AddedEvent<T> = Event.Added<T>
+typealias RemovedEvent<T> = Event.Removed<T>
+typealias ChangedEvent<T> = Event.Changed<T>
+typealias CancelledEvent<T> = Event.Canceled<T>
 
 sealed class Event<out T>(val value: T?) {
 
-    abstract fun <R> map(mapper: Mapper<T, R>): Event<R>
+    val hasValue: Boolean
+        get() = value != null
 
-    fun hasValue(): Boolean {
-        return value != null
-    }
+    class Empty<out T> : Neutral<T>(null)
 
-    class Empty<out T> : Event<T>(null) {
-        override fun <R> map(mapper: Mapper<T, R>): Event<R> {
-            return Empty()
-        }
-    }
+    open class Positive<out T>(value: T) : Event<T>(value)
 
-    class Added<out T>(value: T) : Event<T>(value) {
-        override fun <R> map(mapper: Mapper<T, R>): Event<R> {
-            return Added(mapper.map(value!!)!!)
-        }
-    }
+    open class Negative<out T>(value: T?) : Event<T>(value)
 
-    class Changed<out T>(value: T) : Event<T>(value) {
-        override fun <R> map(mapper: Mapper<T, R>): Event<R> {
-            return Changed(mapper.map(value!!)!!)
-        }
-    }
+    open class Neutral<out T>(value: T?) : Event<T>(value)
 
-    class Removed<out T>(value: T? = null) : Event<T>(value) {
-        override fun <R> map(mapper: Mapper<T, R>): Event<R> {
-            return Removed(mapper.map(value!!)!!)
-        }
-    }
+    /* For events that were added before the observer subscribed. */
+    class Original<out T>(value: T) : Positive<T>(value)
 
-    class Canceled<out T>(val error: Exception? = null) : Event<T>(null) {
-        override fun <R> map(mapper: Mapper<T, R>): Event<R> {
-            return Canceled()
-        }
-    }
+    class Added<out T>(value: T) : Positive<T>(value)
 
+    class Changed<out T>(value: T) : Positive<T>(value)
+
+    class Removed<out T>(value: T? = null) : Negative<T>(value)
+
+    class Canceled<out T>(val error: Throwable? = null) : Event<T>(null)
 }
