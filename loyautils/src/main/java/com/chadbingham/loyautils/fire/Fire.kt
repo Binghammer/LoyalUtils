@@ -10,56 +10,90 @@ import io.reactivex.Maybe
 import io.reactivex.Single
 import timber.log.Timber
 
-class Fire<T>(private val clazz: Class<T>, private val query: Query) {
+interface FirebaseWriter<T> {
+    var writer: Writer<T>
+    var pusher: Pusher<T>?
+    fun child(vararg children: String): FireWriter<T>
+    fun pushValue(value: T): T
+    fun setValue(value: T)
+    fun removeValue()
+}
 
-    constructor(clazz: Class<T>) : this(clazz, FirebaseReferenceProvider.reference)
+interface FirebaseReader<T> {
+    var reader: Reader<T>
+    fun query(buildQuery: (query: Query) -> Query): FireReader<T>
+    fun getValue(): Single<T>
+    fun getValueSafe(): Maybe<T>
+    fun getValues(): Flowable<T>
+    fun getValueEventListener(): Flowable<Event<T>>
+}
+
+class FireReaderWriter<T>(
+        clazz: Class<T>,
+        reference: DatabaseReference,
+        fireWriter: FirebaseWriter<T> = FireWriter(clazz, reference),
+        fireReader: FirebaseReader<T> = FireReader(clazz, reference))
+    : Fire<T>(clazz), FirebaseWriter<T> by fireWriter, FirebaseReader<T> by fireReader {
 
     constructor(clazz: Class<T>, vararg children: String)
             : this(clazz, FirebaseReferenceProvider.reference.child(children.joinToString(separator = "/")))
+}
 
-    var reader: Reader<T> = { it.getValue(clazz) }
-    var writer: Writer<T> = { reference, value -> reference.setValue(value) }
-    var pusher: Pusher<T> = { reference, value ->
+class FireWriter<T>(clazz: Class<T>, reference: DatabaseReference) : Fire<T>(clazz, reference), FirebaseWriter<T> {
+
+    constructor(clazz: Class<T>, vararg children: String) : this(clazz, FirebaseReferenceProvider.reference.child(children.joinToString(separator = "/")))
+
+    override var writer: Writer<T> = { reference, value -> reference.setValue(value) }
+    override var pusher: Pusher<T>? = { reference, value ->
         reference.setValue(value)
         value
     }
 
-    private val tag: String = "firebase/${clazz.simpleName}"
-    private var debugLog = false
-
-    fun enableLogging() {
-        debugLog = true
-        logDebug("Logging enabled")
+    override fun child(vararg children: String): FireWriter<T> {
+        val log = debugLog
+        return FireWriter(clazz, *children).apply { debugLog = log }
     }
 
-    fun query(buildQuery: (query: Query) -> Query): Fire<T> {
-        return Fire(clazz, buildQuery(query))
-    }
-
-    fun pushValue(value: T): T {
-        val ref = query.ref.push()
+    override fun pushValue(value: T): T {
+        val ref = reference.push()
         logDebug("pushValue at $ref with: $value")
-        return pusher(ref, value)
+        return if (pusher != null) {
+            pusher!!.invoke(ref, value)
+        } else {
+            writer(ref, value)
+            value
+        }
     }
 
-    fun setValue(value: T) {
-        logDebug("setValue at ${query.ref} with: $value")
-        writer(query.ref, value)
+    override fun setValue(value: T) {
+        logDebug("setValue at $reference with: $value")
+        writer(reference, value)
     }
 
-    fun removeValue() {
-        logDebug("removeValue at ${query.ref}")
-        query.ref.removeValue()
+    override fun removeValue() {
+        logDebug("removeValue at $reference")
+        reference.removeValue()
+    }
+}
+
+open class FireReader<T>(clazz: Class<T>, private val query: Query = FirebaseReferenceProvider.reference)
+    : Fire<T>(clazz, query.ref), FirebaseReader<T> {
+
+    override var reader: Reader<T> = { it.getValue(clazz) }
+
+    override fun query(buildQuery: (query: Query) -> Query): FireReader<T> {
+        val log = debugLog
+        return FireReader(clazz, buildQuery(query)).apply { debugLog = log }
     }
 
-    fun getValue(): Single<T> {
+    override fun getValue(): Single<T> {
         return RxFirebaseAdapter
                 .singleValueListener(query)
                 .flatMap { if (it.exists() && it.hasChildren()) Single.just(it) else Single.error(NoValueFound(query)) }
                 .flatMap { reader(it)?.let { Single.just(it) } ?: Single.error<T>(NoValueFound(query)) }
     }
 
-    fun getValueSafe(): Maybe<T> {
+    override fun getValueSafe(): Maybe<T> {
         return RxFirebaseAdapter.singleValueListener(query)
                 .filter({ ds ->
                     if (!ds.exists()) {
@@ -80,7 +114,7 @@ class Fire<T>(private val clazz: Class<T>, private val query: Query) {
                 }
     }
 
-    fun getValues(): Flowable<T> {
+    override fun getValues(): Flowable<T> {
         logDebug("getChildren at ${query.ref}")
         return RxFirebaseAdapter
                 .singleValueListener(query)
@@ -90,7 +124,7 @@ class Fire<T>(private val clazz: Class<T>, private val query: Query) {
                 .map { reader(it) }
     }
 
-    fun getValueEventListener(): Flowable<Event<T>> {
+    override fun getValueEventListener(): Flowable<Event<T>> {
         logDebug("getChildEventListener: ${query.ref}")
         return RxFirebaseAdapter.childEventListener(query)
                 .map {
@@ -112,19 +146,29 @@ class Fire<T>(private val clazz: Class<T>, private val query: Query) {
                 .doOnError({ e ->
                     logError("getChildEventListener: \n\tPath=$query \n\tERROR=${e.message}")
                 })
+    }
+}
 
+abstract class Fire<T>(protected val clazz: Class<T>, protected val reference: DatabaseReference = FirebaseReferenceProvider.reference) {
+
+    private val tag: String = "firebase/${clazz.simpleName}"
+    internal var debugLog = false
+
+    fun enableLogging() {
+        debugLog = true
+        logDebug("Logging enabled")
     }
 
-    private fun logDebug(message: String) {
+    protected fun logDebug(message: String) {
         if (debugLog)
             Log.d(tag, message)
     }
 
-    private fun logWarning(message: String) {
+    protected fun logWarning(message: String) {
         Log.w(tag, message)
     }
 
-    private fun logError(message: String) {
+    protected fun logError(message: String) {
         Log.e(tag, message)
     }
 }
