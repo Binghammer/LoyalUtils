@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.chadbingham.loyautils.fire
 
 import android.util.Log
@@ -17,32 +19,32 @@ object Fire {
         debugLogging = log
     }
 
-    inline fun <reified T> reader(vararg children: String): FirebaseReader<T> {
+    inline fun <reified T> reader(vararg children: String): FireReader<T> {
         return reader(Fire.joinToReference(*children))
     }
 
-    inline fun <reified T> reader(reference: DatabaseReference = FirebaseReferenceProvider.reference): FirebaseReader<T> {
+    inline fun <reified T> reader(reference: DatabaseReference = FirebaseReferenceProvider.reference): FireReader<T> {
         return reader(T::class.java, reference)
     }
 
-    inline fun <reified T> reader(query: Query = FirebaseReferenceProvider.reference): FirebaseReader<T> {
+    inline fun <reified T> reader(query: Query = FirebaseReferenceProvider.reference): FireReader<T> {
         return reader(T::class.java, query)
     }
 
-    fun <T> reader(clazz: Class<T>, query: Query): FirebaseReader<T> {
-        return FirebaseReaderImpl(clazz, query)
+    fun <T> reader(clazz: Class<T>, query: Query): FireReader<T> {
+        return FireReaderImpl(clazz, query)
     }
 
-    inline fun <reified T> writer(reference: DatabaseReference = FirebaseReferenceProvider.reference): FirebaseWriter<T> {
+    inline fun <reified T> writer(reference: DatabaseReference = FirebaseReferenceProvider.reference): FireWriter<T> {
         return writer(T::class.java, reference)
     }
 
-    inline fun <reified T> writer(vararg children: String): FirebaseWriter<T> {
+    inline fun <reified T> writer(vararg children: String): FireWriter<T> {
         return writer(Fire.joinToReference(*children))
     }
 
-    fun <T> writer(clazz: Class<T>, reference: DatabaseReference): FirebaseWriter<T> {
-        return FirebaseWriterImpl(clazz, reference)
+    fun <T> writer(clazz: Class<T>, reference: DatabaseReference): FireWriter<T> {
+        return FireWriterImpl(clazz, reference)
     }
 
     inline fun <reified T> readerWriter(vararg children: String): FireReaderWriter<T> {
@@ -50,7 +52,11 @@ object Fire {
     }
 
     inline fun <reified T> readerWriter(reference: DatabaseReference = FirebaseReferenceProvider.reference): FireReaderWriter<T> {
-        return FireReaderWriter(T::class.java, reference)
+        return readerWriter(T::class.java, reference)
+    }
+
+    fun <T> readerWriter(clazz: Class<T>, reference: DatabaseReference = FirebaseReferenceProvider.reference): FireReaderWriter<T> {
+        return FireReaderWriter(clazz, reference)
     }
 
     fun joinToReference(vararg children: String): DatabaseReference {
@@ -58,33 +64,32 @@ object Fire {
     }
 }
 
-interface FirebaseWriter<T> {
+interface FireWriter<T> {
     var writer: Writer<T>
     var pusher: Pusher<T>?
-    fun child(vararg children: String): FirebaseWriter<T>
+    fun child(vararg children: String): FireWriter<T>
     fun pushValue(value: T): T
     fun setValue(value: T)
     fun removeValue()
 }
 
-interface FirebaseReader<T> {
+interface FireReader<T> {
     var reader: Reader<T>
-    fun query(buildQuery: (query: Query) -> Query): FirebaseReader<T>
+    fun query(buildQuery: (query: Query) -> Query): FireReader<T>
     fun getValue(): Single<T>
     fun getValueSafe(): Maybe<T>
     fun getValues(): Flowable<T>
     fun getValueEventListener(): Flowable<Event<T>>
 }
 
-class FireReaderWriter<T>(
+class FireReaderWriter<T> internal constructor(
         private val clazz: Class<T>,
         private val reference: DatabaseReference = FirebaseReferenceProvider.reference,
-        private val fireWriter: FirebaseWriter<T> = FirebaseWriterImpl(clazz, reference),
-        private val fireReader: FirebaseReader<T> = FirebaseReaderImpl(clazz, reference))
-    : FirebaseWriter<T> by fireWriter, FirebaseReader<T> by fireReader
+        private val fireWriter: FireWriter<T> = FireWriterImpl(clazz, reference),
+        private val fireReader: FireReader<T> = FireReaderImpl(clazz, reference))
+    : FireWriter<T> by fireWriter, FireReader<T> by fireReader
 
-internal class FirebaseWriterImpl<T>(clazz: Class<T>, reference: DatabaseReference)
-    : BaseFire<T>(clazz, reference), FirebaseWriter<T> {
+internal class FireWriterImpl<T>(clazz: Class<T>, reference: DatabaseReference) : FireAbstract<T>(clazz, reference), FireWriter<T> {
 
     override var writer: Writer<T> = { reference, value -> reference.setValue(value) }
     override var pusher: Pusher<T>? = { reference, value ->
@@ -92,8 +97,8 @@ internal class FirebaseWriterImpl<T>(clazz: Class<T>, reference: DatabaseReferen
         value
     }
 
-    override fun child(vararg children: String): FirebaseWriterImpl<T> {
-        return FirebaseWriterImpl(clazz, Fire.joinToReference(*children))
+    override fun child(vararg children: String): FireWriterImpl<T> {
+        return FireWriterImpl(clazz, Fire.joinToReference(*children))
     }
 
     override fun pushValue(value: T): T {
@@ -118,13 +123,12 @@ internal class FirebaseWriterImpl<T>(clazz: Class<T>, reference: DatabaseReferen
     }
 }
 
-internal class FirebaseReaderImpl<T>(clazz: Class<T>, private val query: Query)
-    : BaseFire<T>(clazz, query.ref), FirebaseReader<T> {
+internal class FireReaderImpl<T>(clazz: Class<T>, private val query: Query) : FireAbstract<T>(clazz, query.ref), FireReader<T> {
 
     override var reader: Reader<T> = { it.getValue(clazz) }
 
-    override fun query(buildQuery: (query: Query) -> Query): FirebaseReaderImpl<T> {
-        return FirebaseReaderImpl(clazz, buildQuery(query))
+    override fun query(buildQuery: (query: Query) -> Query): FireReaderImpl<T> {
+        return FireReaderImpl(clazz, buildQuery(query))
     }
 
     override fun getValue(): Single<T> {
@@ -190,7 +194,7 @@ internal class FirebaseReaderImpl<T>(clazz: Class<T>, private val query: Query)
     }
 }
 
-internal open class BaseFire<T>(protected val clazz: Class<T>, protected val reference: DatabaseReference = FirebaseReferenceProvider.reference) {
+internal open class FireAbstract<T>(protected val clazz: Class<T>, protected val reference: DatabaseReference) {
 
     private val tag: String = "firebase/${clazz.simpleName}"
 
