@@ -42,7 +42,7 @@ interface FirebaseReader<T> {
 
 class FireReaderWriter<T>(
         clazz: Class<T>,
-        reference: DatabaseReference,
+        reference: DatabaseReference = FirebaseReferenceProvider.reference,
         fireWriter: FirebaseWriter<T> = FireWriter(clazz, reference),
         fireReader: FirebaseReader<T> = FireReader(clazz, reference))
     : Fire<T>(clazz), FirebaseWriter<T> by fireWriter, FirebaseReader<T> by fireReader {
