@@ -10,6 +10,18 @@ import io.reactivex.Maybe
 import io.reactivex.Single
 import timber.log.Timber
 
+inline fun <reified T> reader(query: Query = FirebaseReferenceProvider.reference): FirebaseReader<T> {
+    return FireReader(T::class.java, query)
+}
+
+inline fun <reified T> writer(reference: DatabaseReference = FirebaseReferenceProvider.reference): FirebaseWriter<T> {
+    return FireWriter(T::class.java, reference)
+}
+
+inline fun <reified T> readerWriter(reference: DatabaseReference = FirebaseReferenceProvider.reference): FirebaseWriter<T> {
+    return FireReaderWriter(T::class.java, reference)
+}
+
 interface FirebaseWriter<T> {
     var writer: Writer<T>
     var pusher: Pusher<T>?
