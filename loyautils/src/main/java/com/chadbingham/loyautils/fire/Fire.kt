@@ -18,7 +18,7 @@ inline fun <reified T> writer(reference: DatabaseReference = FirebaseReferencePr
     return FireWriter(T::class.java, reference)
 }
 
-inline fun <reified T> readerWriter(reference: DatabaseReference = FirebaseReferenceProvider.reference): FirebaseWriter<T> {
+inline fun <reified T> readerWriter(reference: DatabaseReference = FirebaseReferenceProvider.reference): FireReaderWriter<T> {
     return FireReaderWriter(T::class.java, reference)
 }
 
