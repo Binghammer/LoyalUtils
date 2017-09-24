@@ -22,6 +22,24 @@ inline fun <reified T> readerWriter(reference: DatabaseReference = FirebaseRefer
     return FireReaderWriter(T::class.java, reference)
 }
 
+inline fun <reified T> reader(vararg children: String): FirebaseReader<T> {
+    return FireReader(T::class.java, FireUtils.joinToReference(*children))
+}
+
+inline fun <reified T> writer(vararg children: String): FirebaseWriter<T> {
+    return FireWriter(T::class.java, FireUtils.joinToReference(*children))
+}
+
+inline fun <reified T> readerWriter(vararg children: String): FireReaderWriter<T> {
+    return FireReaderWriter(T::class.java, FireUtils.joinToReference(*children))
+}
+
+object FireUtils {
+    fun joinToReference(vararg children: String): DatabaseReference {
+        return FirebaseReferenceProvider.reference.child(children.joinToString(separator = "/"))
+    }
+}
+
 interface FirebaseWriter<T> {
     var writer: Writer<T>
     var pusher: Pusher<T>?
@@ -47,13 +65,12 @@ class FireReaderWriter<T>(
         fireReader: FirebaseReader<T> = FireReader(clazz, reference))
     : Fire<T>(clazz), FirebaseWriter<T> by fireWriter, FirebaseReader<T> by fireReader {
 
-    constructor(clazz: Class<T>, vararg children: String)
-            : this(clazz, FirebaseReferenceProvider.reference.child(children.joinToString(separator = "/")))
+    constructor(clazz: Class<T>, vararg children: String) : this(clazz, FireUtils.joinToReference(*children))
 }
 
 class FireWriter<T>(clazz: Class<T>, reference: DatabaseReference) : Fire<T>(clazz, reference), FirebaseWriter<T> {
 
-    constructor(clazz: Class<T>, vararg children: String) : this(clazz, FirebaseReferenceProvider.reference.child(children.joinToString(separator = "/")))
+    constructor(clazz: Class<T>, vararg children: String) : this(clazz, FireUtils.joinToReference(*children))
 
     override var writer: Writer<T> = { reference, value -> reference.setValue(value) }
     override var pusher: Pusher<T>? = { reference, value ->
