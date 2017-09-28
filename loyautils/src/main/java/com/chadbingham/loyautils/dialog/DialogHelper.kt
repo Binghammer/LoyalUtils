@@ -11,11 +11,11 @@ import com.chadbingham.loyautils.mvp.ViewLayer
 import io.reactivex.Maybe
 import io.reactivex.MaybeEmitter
 
-data class BoolDialog(@StringRes val title: Int,
-                      @StringRes val message: Int?,
-                      @StringRes private val positiveButton: Int,
-                      @StringRes private val negativeButton: Int,
-                      private val stringMessage: String? = null) {
+data class BooleanDialog(@StringRes val title: Int,
+                         @StringRes val message: Int?,
+                         @StringRes private val positiveButton: Int,
+                         @StringRes private val negativeButton: Int,
+                         private val stringMessage: String? = null) {
 
     fun show(viewLayer: ViewLayer): Maybe<Boolean> {
         return when (viewLayer) {
@@ -43,19 +43,19 @@ data class BoolDialog(@StringRes val title: Int,
 }
 
 object BooleanDialogs {
-    val CONFIRM_EXIT_DIALOG = BoolDialog(R.string.exit_without_saving_title,
+    val CONFIRM_EXIT_DIALOG = BooleanDialog(R.string.exit_without_saving_title,
             R.string.exit_without_saving_message,
             R.string.exit,
             R.string.stay)
 
     fun CONFIRM_YES_NO_DIALOG(@StringRes title: Int, @StringRes message: Int) =
-            BoolDialog(title,
+            BooleanDialog(title,
                     message,
                     R.string.yes,
                     R.string.no)
 
     fun CONFIRM_YES_NO_DIALOG(@StringRes title: Int, stringMessage: String) =
-            BoolDialog(title,
+            BooleanDialog(title,
                     null,
                     R.string.yes,
                     R.string.no,
