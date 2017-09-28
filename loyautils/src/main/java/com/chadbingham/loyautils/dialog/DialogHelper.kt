@@ -1,4 +1,4 @@
-package com.iconfitness.iconaudit.common.dialog
+package com.chadbingham.loyautils.dialog
 
 import android.app.Activity
 import android.app.AlertDialog
