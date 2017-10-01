@@ -86,7 +86,7 @@ object RxFirebaseAdapter {
                         }
 
                         override fun onCancelled(ex: DatabaseError) {
-                            e.onNext(Event.Canceled(ex.toException()))
+                            e.onNext(Event.Error(ex.toException()))
                         }
                     }
 

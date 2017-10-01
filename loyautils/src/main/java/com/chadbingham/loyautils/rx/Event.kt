@@ -3,7 +3,7 @@
 package com.chadbingham.loyautils.rx
 
 typealias EmptyEvent<T> = Event.Empty<T>
-typealias OriginalEvent<T> = Event.Original<T>
+typealias JustEvent<T> = Event.Just<T>
 typealias AddedEvent<T> = Event.Added<T>
 typealias RemovedEvent<T> = Event.Removed<T>
 typealias ChangedEvent<T> = Event.Changed<T>
@@ -28,7 +28,7 @@ sealed class Event<out T>(val value: T?) {
     class Empty<out T> : Event<T>(null)
 
     /* For events that were added before the observer subscribed. */
-    class Original<out T>(value: T) : Positive<T>(value)
+    class Just<out T>(value: T) : Positive<T>(value)
 
     class Added<out T>(value: T) : Positive<T>(value)
 
