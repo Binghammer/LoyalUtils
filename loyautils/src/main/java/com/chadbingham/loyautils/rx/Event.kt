@@ -27,7 +27,7 @@ sealed class Event<out T>(val value: T?) {
 
     class Empty<out T> : Event<T>(null)
 
-    /* For events that were added before the observer subscribed. */
+    /** Events that represent objects that were added/updated before the observer subscribed. */
     class Just<out T>(value: T) : Positive<T>(value)
 
     class Added<out T>(value: T) : Positive<T>(value)

@@ -1,28 +1,89 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-
 buildscript {
-    ext.kotlin_version = '1.1.51'
-    ext.support_version = '26.1.0'
-    ext.constraint_version = '1.0.2'
+    ext.versions = [
+            'minSdk'        : 19,
+            'compileSdk'    : 26,
+            'buildTools'    : '26.0.2',
+            'supportLibrary': '26.1.0',
+            'androidPlugin' : '3.0.0-beta7',
+            'androidTools'  : '26.0.0-beta6',
+            'kotlin'        : '1.1.51',
+    ]
+
+    ext.deps = [
+            android  : [
+                    'runtime'     : 'com.google.android:android:4.1.1.4',
+                    'gradlePlugin': "com.android.tools.build:gradle:${versions.androidPlugin}",
+            ],
+
+            'support': [
+                    'compat'     : "com.android.support:support-compat:${versions.supportLibrary}",
+                    'annotations': "com.android.support:support-annotations:${versions.supportLibrary}",
+            ],
+
+            'google' : [
+                    'guava': 'com.google.guava:guava:23.0-android'
+            ],
+
+            'auto'   : [
+                    'service': 'com.google.auto.service:auto-service:1.0-rc3',
+                    'common' : 'com.google.auto:auto-common:0.8',
+            ],
+
+            'release': [
+                    'runtime' : "com.jakewharton:butterknife:${versions.release}",
+                    'compiler': "com.jakewharton:butterknife-compiler:${versions.release}"
+            ],
+
+            'kotlin' : [
+                    'stdLibJre8': "org.jetbrains.kotlin:kotlin-stdlib-jre8:${versions.kotlin}",
+            ],
+
+            'rx'     : [
+                    'java'   : 'io.reactivex.rxjava2:rxjava:2.1.2',
+                    'kotlin' : 'io.reactivex:rxkotlin:2.0.0-RC1',
+                    'android': 'io.reactivex.rxjava2:rxandroid:2.0.1',
+                    'traceur': 'com.tspoon.traceur:traceur:1.0.1',
+                    'binding': 'com.jakewharton.rxbinding2:rxbinding-kotlin:2.0.0'
+            ],
+
+            'rx_all' : [
+                    'io.reactivex.rxjava2:rxjava:2.1.2',
+                    'io.reactivex:rxkotlin:2.0.0-RC1',
+                    'io.reactivex.rxjava2:rxandroid:2.0.1',
+                    'com.tspoon.traceur:traceur:1.0.1',
+                    'com.jakewharton.rxbinding2:rxbinding-kotlin:2.0.0'
+            ]
+    ]
 
     repositories {
+        mavenCentral()
         google()
         jcenter()
     }
+
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0-beta6'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath deps.android.gradlePlugin
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
     }
 }
+apply plugin: 'kotlin'
 
 allprojects {
     repositories {
+        mavenCentral()
         google()
         jcenter()
     }
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }

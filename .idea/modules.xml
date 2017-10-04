@@ -3,6 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/LoyalUtilsApp.iml" filepath="$PROJECT_DIR$/LoyalUtilsApp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Uinta/Uinta.iml" filepath="$PROJECT_DIR$/Uinta/Uinta.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Uinta-Annotations/Uinta-Annotations.iml" filepath="$PROJECT_DIR$/Uinta-Annotations/Uinta-Annotations.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Uinta-Compiler/Uinta-Compiler.iml" filepath="$PROJECT_DIR$/Uinta-Compiler/Uinta-Compiler.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/loyautils/loyautils.iml" filepath="$PROJECT_DIR$/loyautils/loyautils.iml" />
     </modules>

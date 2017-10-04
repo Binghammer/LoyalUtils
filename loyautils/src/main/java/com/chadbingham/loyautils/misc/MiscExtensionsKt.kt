@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.chadbingham.loyautils.misc
 
 import io.reactivex.Single
