@@ -192,6 +192,15 @@ internal class FireReaderImpl<T>(clazz: Class<T>, private val query: Query) : Fi
                     logError("getChildEventListener: \n\tPath=$query \n\tERROR=${e.message}")
                 })
     }
+
+    fun getValueListener(): Flowable<T> {
+        logDebug("getValueListener: ${query.ref}")
+        return RxFirebaseAdapter.valueListener(query)
+                .map { reader(it)!! }
+                .doOnError({ e ->
+                    logError("getValueListener: \n\tPath=$query \n\tERROR=${e.message}")
+                })
+    }
 }
 
 internal open class FireAbstract<T>(protected val clazz: Class<T>, protected val reference: DatabaseReference) {
