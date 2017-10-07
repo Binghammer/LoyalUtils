@@ -79,6 +79,7 @@ interface FireReader<T> {
     fun getValue(): Single<T>
     fun getValueSafe(): Maybe<T>
     fun getValues(): Flowable<T>
+    fun getValueListener(): Flowable<T>
     fun getValueEventListener(): Flowable<Event<T>>
 }
 
@@ -193,7 +194,7 @@ internal class FireReaderImpl<T>(clazz: Class<T>, private val query: Query) : Fi
                 })
     }
 
-    fun getValueListener(): Flowable<T> {
+    override fun getValueListener(): Flowable<T> {
         logDebug("getValueListener: ${query.ref}")
         return RxFirebaseAdapter.valueListener(query)
                 .map { reader(it)!! }
