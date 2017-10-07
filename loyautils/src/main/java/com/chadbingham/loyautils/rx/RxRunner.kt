@@ -1,26 +1,36 @@
 package com.chadbingham.loyautils.rx
 
-import io.reactivex.Completable
 import io.reactivex.Single
 
 @Suppress("unused", "MemberVisibilityCanPrivate")
-abstract class RxRunner {
+abstract class RxRunner<T> {
+
+    var value: T? = null
+        protected set
 
     var complete = false
         private set
 
     var error: Throwable? = null
+        protected set
 
-    fun hasError(): Boolean = error != null
+    val hasValue: Boolean
+        get() = complete && value != null
 
-    fun isSuccessful(): Boolean = complete && error == null
+    val hasError: Boolean
+        get() = complete && error != null
 
-    fun run(): Single<RxRunner> {
-        return completable()
+    val isSuccessful: Boolean
+        get() = complete && error == null
+
+    fun run(): Single<RxRunner<T>> {
+        check(!complete, { "RxRunnable has already ran" })
+        return runner()
                 .doFinally { complete = true }
-                .doOnError { this.error = it }
-                .andThen(Single.just(this))
+                .doOnError { error = it }
+                .doOnSuccess { value = it }
+                .map { this }
     }
 
-    abstract fun completable(): Completable
+    abstract fun runner(): Single<T>
 }
