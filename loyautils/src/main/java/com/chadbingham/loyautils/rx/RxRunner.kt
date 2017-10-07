@@ -28,9 +28,12 @@ abstract class RxRunner<T> {
         return runner()
                 .doFinally { complete = true }
                 .doOnError { error = it }
-                .doOnSuccess { value = it }
+                .doOnSuccess {
+                    complete = true
+                    value = it
+                }
                 .map { this }
     }
 
-    abstract fun runner(): Single<T>
+    protected abstract fun runner(): Single<T>
 }
