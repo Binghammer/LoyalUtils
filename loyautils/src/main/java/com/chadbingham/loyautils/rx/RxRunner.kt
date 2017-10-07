@@ -2,6 +2,7 @@ package com.chadbingham.loyautils.rx
 
 import io.reactivex.Completable
 
+@Suppress("unused", "MemberVisibilityCanPrivate")
 abstract class RxRunner {
 
     var complete = false
@@ -10,7 +11,7 @@ abstract class RxRunner {
 
     fun hasError(): Boolean = error != null
 
-    fun isSuccessfull(): Boolean = complete && error == null
+    fun isSuccessful(): Boolean = complete && error == null
 
     abstract fun run(): Completable
 }
