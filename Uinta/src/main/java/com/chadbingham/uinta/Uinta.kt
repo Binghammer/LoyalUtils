@@ -4,4 +4,8 @@ class Uinta {
     companion object {
         var debugLogging = true
     }
+
+    private class Builder {
+
+    }
 }

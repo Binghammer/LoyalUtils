@@ -18,7 +18,7 @@ class UintaProcessor: BasicAnnotationProcessor() {
 
         return ImmutableList.of(
                 InteractorProcessingStep(filer, types, messager, elements),
-                PresenterProcessingStep(filer, types, messager, elements))
+                PresenterProcessingStep(filer, messager, elements))
     }
 
     override fun getSupportedSourceVersion(): SourceVersion {

@@ -7,6 +7,4 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.CLASS)
 @Target({ElementType.TYPE})
-public @interface PresenterScopes {
-	PresenterScope[] value();
-}
+public @interface PresenterLookup {  }

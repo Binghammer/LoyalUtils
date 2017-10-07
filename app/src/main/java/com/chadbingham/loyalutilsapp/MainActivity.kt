@@ -8,10 +8,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val factory = PresenterFactory(this, R.id.container)
+//        val factory = ActivityPresenterFactory(this, R.id.container)
 
-        val presenter = factory.presenterTest
+//        val presenter = factory.presenterTest
 
-//        val test: InteractorTest = Interactors(this, R.id.container).createInteractorTestImpl()
+//        val test: InteractorTest = Interactors(this, R.id.container).interactorTest
     }
 }

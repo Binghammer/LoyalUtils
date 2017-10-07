@@ -20,6 +20,7 @@ android {
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
         main.java.srcDirs += [file("$buildDir/generated/source/kapt/main")]
+        main.java.srcDirs += [file("$buildDir/generated/source/kapt/debug")]
     }
 
     buildTypes {

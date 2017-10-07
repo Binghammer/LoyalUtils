@@ -28,22 +28,20 @@ import javax.lang.model.element.*
 import javax.lang.model.element.Modifier.*
 import javax.lang.model.type.TypeMirror
 import javax.lang.model.util.Elements
-import javax.lang.model.util.Types
 
-class PresenterProcessingStep(
-        private val filer: Filer,
-        private val types: Types,
-        private val messager: Messager,
-        private val elements: Elements) : ProcessingStep {
+internal object Helper {
+    const val PRESENTERS = "presenters"
+}
+
+class PresenterProcessingStep(private val filer: Filer, private val messager: Messager, private val elements: Elements) : ProcessingStep {
 
     private val presenters: PresentersSet = PresentersSet()
 
-    private val uintaMirror = elements.getTypeElement(UintaPresenter::class.java.name)
-    private val uintaClassName = uintaMirror.qualifiedName
+    private val uintaClassName = UintaPresenter::class.java.name
     private val undefinedScope = Scope("")
 
     override fun annotations(): MutableSet<out Class<out Annotation>> {
-        return ImmutableSet.of(Dependencies.PRESENTER_SPEC)
+        return ImmutableSet.of(Dependencies.PRESENTER_SPEC, Dependencies.PRESENTER_SCOPE)
     }
 
     override fun process(elementsByAnnotation: SetMultimap<Class<out Annotation>, Element>): MutableSet<Element> {
@@ -51,10 +49,7 @@ class PresenterProcessingStep(
             parsePresenter(element)?.let { presenters.add(it) }
         }
 
-        val factories = presenters.generateFactories(elements)
-
-        factories.forEach { it.write(filer) }
-
+        presenters.generateFactories().forEach { it.write(filer) }
         return ImmutableSet.of()
     }
 
@@ -63,17 +58,22 @@ class PresenterProcessingStep(
             if (element.kind != ElementKind.CLASS) {
                 logDebug("isValidPresenter: $element FALSE")
                 false
-            } else if (element.qualifiedName == uintaClassName) {
+            } else if (element.qualifiedName.toString() == uintaClassName) {
                 logDebug("isValidPresenter: $element FOUND")
                 true
 
             } else {
                 val superclass = element.superclass
                 if (superclass != null) {
-                    logDebug("isValidPresenter: $element checking superclass")
-                    isValidPresenter(MoreTypes.asTypeElement(superclass))
+                    if (!superclass.toString().contains("<")) {
+                        logDebug("isValidPresenter: FALSE -- must extend UintaPresenter<UintaInteractor>")
+                        false
+                    } else {
+                        logDebug("isValidPresenter: $element checking superclass")
+                        isValidPresenter(MoreTypes.asTypeElement(superclass))
+                    }
                 } else {
-                    logDebug("isValidPresenter: $element TRUE")
+                    logDebug("isValidPresenter: $element FALSE")
                     false
                 }
             }
@@ -97,7 +97,17 @@ class PresenterProcessingStep(
         val scopeAnnotations = element.getAnnotationsByType(PresenterScope::class.java)
         val scopes = mutableListOf<Scope>()
         if (scopeAnnotations.isNotEmpty()) {
-            scopes.addAll(scopeAnnotations.map { Scope(it.name) })
+            scopes.addAll(scopeAnnotations.map {
+                val name = it.name
+                if (name.isBlank()) {
+                    reporter.reportError("Scope on class '${element.simpleName}' must have a non-empty name")
+                }
+
+                val seq = name.toCharArray()
+                seq[0] = name[0].toUpperCase()
+
+                Scope(String(seq))
+            })
         }
 
         if (scopes.isEmpty()) scopes.add(undefinedScope)
@@ -152,11 +162,23 @@ class PresenterProcessingStep(
             reporter.reportError("No constructor found")
         }
 
+        val interactorTypeElement = if (!reporter.hasError) {
+            val superclassName = element.superclass.toString()
+            val start = superclassName.indexOf('<')
+            val end = superclassName.indexOf('>')
+            val interactorName = superclassName.subSequence(start + 1, end)
+            logDebug("Interactor name: $interactorName")
+            elements.getTypeElement(interactorName)
+        } else {
+            null
+        }
+
         return if (reporter.hasError) {
             null
         } else {
             PresenterDescription(
                     annotation = annotationMirror,
+                    interactor = interactorTypeElement!!,
                     className = name,
                     element = element,
                     scopes = scopes,
@@ -203,7 +225,8 @@ class PresenterProcessingStep(
 
 data class PresenterDescription(
         val annotation: AnnotationMirror,
-        var className: ClassName,
+        val interactor: TypeElement,
+        val className: ClassName,
         var element: Element,
         val scopes: List<Scope>,
         val dependencies: List<Dependency>,
@@ -231,37 +254,14 @@ class PresentersSet {
         dependencies.addAll(description.dependencies)
     }
 
-    fun generateFactories(elements: Elements): List<PresenterFactory> {
+    fun generateFactories(): List<PresenterFactoryGenerator> {
         return presenters.keys().map {
-            PresenterFactory(it, presenters.get(it).toList())
+            PresenterFactoryGenerator(it, presenters.get(it).toList())
         }
     }
 }
 
-object Helper {
-    const val PRESENTERS = "presenters"
-
-    fun createHashMap(): TypeName {
-        val interactorWildcard = WildcardTypeName.subtypeOf(UintaInteractor::class.java)
-        val uintaPresenterType: ClassName = ClassName.get(UintaPresenter::class.java)
-
-        val uintaParameterized = ParameterizedTypeName.get(uintaPresenterType, interactorWildcard)
-        val uintaWildcard: TypeName = WildcardTypeName.supertypeOf(uintaParameterized)
-
-        val string: ClassName = ClassName.get(String::class.java)
-        val mapTypeName: ClassName = ClassName.get(Map::class.java)
-        return ParameterizedTypeName.get(mapTypeName, string, uintaWildcard)
-    }
-}
-
-class PresenterFactory(private val scope: Scope, private val presenters: List<PresenterDescription>) {
-    private var map = Helper.createHashMap()
-
-    private var packageName: String = ""
-
-    private val mapFieldSpec = FieldSpec.builder(map, PRESENTERS, PRIVATE, FINAL)
-            .initializer(CodeBlock.of("new \$T()", ClassName.get(HashMap::class.java)))
-            .build()!!
+class PresenterFactoryGenerator(private val scope: Scope, private val presenters: List<PresenterDescription>) {
 
     private val dependencies: MutableSet<Dependency> = mutableSetOf()
 
@@ -318,11 +318,24 @@ class PresenterFactory(private val scope: Scope, private val presenters: List<Pr
     private fun generateClass(): TypeSpec {
         val constructor = generateConstructor()
         val methods = presenters.map { generateMethods(it) }
+
+        val presenter = ParameterizedTypeName.get(
+                ClassName.get(UintaPresenter::class.java),
+                WildcardTypeName.subtypeOf(UintaInteractor::class.java))
+
+        val map = ParameterizedTypeName.get(
+                ClassName.get(Map::class.java),
+                ClassName.get(String::class.java),
+                WildcardTypeName.supertypeOf(presenter))
+
         return TypeSpec
                 .classBuilder(className)
                 .addModifiers(PUBLIC)
                 .addMethod(constructor)
-                .addField(mapFieldSpec)
+                .addField(FieldSpec
+                        .builder(map, PRESENTERS, PRIVATE, FINAL)
+                        .initializer(CodeBlock.of("new \$T()", ClassName.get(HashMap::class.java)))
+                        .build())
                 .apply {
                     dependencies.forEach {
                         addField(TypeName.get(it.mirror), it.name, PRIVATE, FINAL)
@@ -332,7 +345,8 @@ class PresenterFactory(private val scope: Scope, private val presenters: List<Pr
                 .build()
     }
 
-    private fun findPackageName() {
+    private fun findPackageName(): String {
+        var packageName = ""
         presenters.forEach {
             val packageElement = it.element.enclosingElement
             val pkg: String = packageElement.toString()
@@ -349,10 +363,12 @@ class PresenterFactory(private val scope: Scope, private val presenters: List<Pr
                 result.joinToString(separator = ".")
             }
         }
+
+        return packageName
     }
 
     fun write(filer: Filer) {
-        findPackageName()
+        val packageName = findPackageName()
         val typeSpec = generateClass()
         val javaFile = JavaFile.builder(packageName, typeSpec).build()
         val source = filer.createSourceFile("$packageName.$className")

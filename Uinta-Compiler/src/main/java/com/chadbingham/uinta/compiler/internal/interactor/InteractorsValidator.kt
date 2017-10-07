@@ -2,7 +2,6 @@ package com.chadbingham.uinta.compiler.internal.interactor
 
 import com.chadbingham.uinta.compiler.ClassType
 import com.chadbingham.uinta.compiler.Dependencies
-import com.chadbingham.uinta.compiler.Dependencies.GENERATED_PACKAGE
 import com.chadbingham.uinta.compiler.Dependencies.VAL_ACTIVITY
 import com.chadbingham.uinta.compiler.Dependencies.VAL_CONTAINER
 import com.chadbingham.uinta.compiler.Dependencies.VAL_CONTEXT
@@ -125,13 +124,36 @@ class InteractorSet(private val elements: Elements) {
     }
 
     fun write(filer: Filer) {
+        val packageName = findPackageName()
         val typeSpec = generateClass()
-        val javaFile = JavaFile.builder(Dependencies.GENERATED_PACKAGE, typeSpec).build()
-        val source = filer.createSourceFile("$GENERATED_PACKAGE.Interactors")
+        val javaFile = JavaFile.builder(packageName, typeSpec).build()
+        val source = filer.createSourceFile("$packageName.Interactors")
         val writer = source.openWriter()
         javaFile.writeTo(writer)
         writer.flush()
         writer.close()
+    }
+
+    private fun findPackageName(): String {
+        var packageName = ""
+        interactors.forEach {
+            val packageElement = it.implementationClassName.packageName()
+            val pkg: String = packageElement.toString()
+            packageName = if (packageName.isBlank()) {
+                pkg
+            } else {
+                val current = packageName.split(".")
+                val pkgSplit = pkg.split(".")
+
+                val result = (0..current.size)
+                        .filter { current[it] == pkgSplit[it] }
+                        .map { current[it] }
+
+                result.joinToString(separator = ".")
+            }
+        }
+
+        return packageName
     }
 
     private fun generateClass(): TypeSpec {

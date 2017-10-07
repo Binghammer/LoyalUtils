@@ -5,7 +5,6 @@ import com.chadbingham.uinta.annotations.PresenterSpec
 
 @PresenterSpec
 @PresenterScope(name = "activity")
-@PresenterScope(name = "context")
 class PresenterTest constructor(myActivity: MainActivity, myInteger: Int) : BasePresenter<InteractorTest>() {
 
     override fun start() {
