@@ -1,11 +1,13 @@
 package com.chadbingham.loyautils.rx
 
 import io.reactivex.Completable
+import io.reactivex.Single
 
 @Suppress("unused", "MemberVisibilityCanPrivate")
 abstract class RxRunner {
 
     var complete = false
+        private set
 
     var error: Throwable? = null
 
@@ -13,5 +15,12 @@ abstract class RxRunner {
 
     fun isSuccessful(): Boolean = complete && error == null
 
-    abstract fun run(): Completable
+    fun run(): Single<RxRunner> {
+        return completable()
+                .doFinally { complete = true }
+                .doOnError { this.error = it }
+                .andThen(Single.just(this))
+    }
+
+    abstract fun completable(): Completable
 }
