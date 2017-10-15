@@ -3,6 +3,11 @@ package com.chadbingham.loyautils.misc
 import android.support.v7.util.SortedList
 import io.reactivex.Completable
 
+fun <T> MutableList<T>.replaceAll(list: Collection<T>) {
+    clear()
+    addAll(list)
+}
+
 val <T> List<T>.lastItem: T?
     get() = if (isNotEmpty()) this[lastIndex] else null
 
