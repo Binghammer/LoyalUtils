@@ -3,7 +3,7 @@ package com.chadbingham.loyautils.misc
 import android.support.v7.util.SortedList
 import io.reactivex.Completable
 
-fun <T> MutableList<T>.replaceAll(list: Collection<T>) {
+fun <T> MutableList<T>.clearAndSet(list: Collection<T>) {
     clear()
     addAll(list)
 }
