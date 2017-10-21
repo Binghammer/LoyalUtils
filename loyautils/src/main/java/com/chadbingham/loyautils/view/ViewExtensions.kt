@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.chadbingham.loyautils.view
 
 import android.content.Context

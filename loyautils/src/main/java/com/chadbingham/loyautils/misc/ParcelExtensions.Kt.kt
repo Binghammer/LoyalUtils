@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.chadbingham.loyautils.misc
 
 import android.os.Parcel

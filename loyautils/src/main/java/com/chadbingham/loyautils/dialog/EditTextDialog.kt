@@ -13,7 +13,6 @@ import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.TextView
 import com.chadbingham.loyautils.R
-import com.chadbingham.loyautils.misc.onError
 import com.chadbingham.loyautils.rx.Event
 import com.chadbingham.loyautils.view.DynamicTextView
 import com.chadbingham.loyautils.view.clicks
@@ -22,6 +21,7 @@ import com.chadbingham.loyautils.view.show
 import io.reactivex.Maybe
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.MaybeSubject
+import timber.log.Timber
 
 data class EditTextDialog(var requireText: Boolean = false,
                           var allowDelete: Boolean = false,
@@ -142,5 +142,10 @@ class EditTextActualDialog : DialogFragment() {
         } else {
             true
         }
+    }
+
+    private fun onError(throwable: Throwable) {
+        Timber.e("onError: ${throwable.message}")
+        throwable.printStackTrace()
     }
 }
