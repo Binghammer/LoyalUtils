@@ -12,6 +12,16 @@ import android.widget.EditText
 import android.widget.TextView
 import io.reactivex.Observable
 
+fun View.locationOnScreen(): IntArray {
+    val arr = IntArray(2)
+    getLocationOnScreen(arr)
+    return arr
+}
+
+fun View.xLocationOnScreen(): Int = locationOnScreen()[0]
+
+fun View.yLocationOnScreen(): Int = locationOnScreen()[1]
+
 fun ViewGroup.inflate(layout: Int): View {
     return LayoutInflater.from(context).inflate(layout, this, false)
 }
