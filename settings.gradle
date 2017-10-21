@@ -1,1 +1,1 @@
-include ':app', ':loyautils', ':Uinta-Compiler', ':Uinta-Annotations', ':Uinta'
+include ':app', ':loyautils'
