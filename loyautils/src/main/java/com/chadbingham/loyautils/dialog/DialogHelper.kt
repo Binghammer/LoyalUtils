@@ -1,13 +1,11 @@
 package com.chadbingham.loyautils.dialog
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.support.annotation.ArrayRes
 import android.support.annotation.StringRes
 import android.support.v4.app.Fragment
 import com.chadbingham.loyautils.R
-import com.chadbingham.loyautils.mvp.ViewLayer
 import io.reactivex.Maybe
 import io.reactivex.MaybeEmitter
 
@@ -17,13 +15,7 @@ data class BooleanDialog(@StringRes val title: Int,
                          @StringRes private val negativeButton: Int,
                          private val stringMessage: String? = null) {
 
-    fun show(viewLayer: ViewLayer): Maybe<Boolean> {
-        return when (viewLayer) {
-            is Fragment -> show(viewLayer.context)
-            is Activity -> show(viewLayer as Activity)
-            else -> Maybe.error(RuntimeException("Invalid ViewLayer: $viewLayer"))
-        }
-    }
+    fun show(fragment: Fragment): Maybe<Boolean> = fragment.context?.let(::show) ?: Maybe.empty()
 
     fun show(context: Context): Maybe<Boolean> {
         return show({
@@ -43,45 +35,23 @@ data class BooleanDialog(@StringRes val title: Int,
 }
 
 object BooleanDialogs {
-    val CONFIRM_EXIT_DIALOG = BooleanDialog(R.string.exit_without_saving_title,
+    fun confirmExit(): BooleanDialog = BooleanDialog(R.string.exit_without_saving_title,
             R.string.exit_without_saving_message,
             R.string.exit,
             R.string.stay)
 
-    fun CONFIRM_YES_NO_DIALOG(@StringRes title: Int, @StringRes message: Int) =
+    fun confirmYesNo(@StringRes title: Int, @StringRes message: Int) =
             BooleanDialog(title,
                     message,
                     R.string.yes,
                     R.string.no)
 
-    fun CONFIRM_YES_NO_DIALOG(@StringRes title: Int, stringMessage: String) =
+    fun confirmYesNo(@StringRes title: Int, stringMessage: String) =
             BooleanDialog(title,
                     null,
                     R.string.yes,
                     R.string.no,
                     stringMessage)
-}
-
-fun showConfirmExitDialog(context: Context): Maybe<Boolean> {
-    return showConfirmDialog(context,
-            R.string.exit_without_saving_title,
-            R.string.exit_without_saving_message,
-            R.string.exit, R.string.stay)
-}
-
-fun showConfirmDialog(context: Context,
-                      @StringRes title: Int,
-                      @StringRes message: Int,
-                      @StringRes positiveButton: Int,
-                      @StringRes negativeButton: Int): Maybe<Boolean> {
-    return show({
-        AlertDialog
-                .Builder(context)
-                .setTitle(title)
-                .setMessage(message)
-                .setPositiveButton(positiveButton) { _, _ -> it.onSuccess(true) }
-                .setNegativeButton(negativeButton) { _, _ -> it.onSuccess(false) }
-    })
 }
 
 fun showSingleSelectionDialog(context: Context, @StringRes title: Int, @ArrayRes items: Int): Maybe<Int> {

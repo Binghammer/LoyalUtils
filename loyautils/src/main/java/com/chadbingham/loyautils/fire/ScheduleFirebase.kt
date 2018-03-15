@@ -1,4 +1,4 @@
-package com.chadbingham.loyautils.rx
+package com.chadbingham.loyautils.fire
 
 import io.reactivex.*
 import io.reactivex.android.schedulers.AndroidSchedulers

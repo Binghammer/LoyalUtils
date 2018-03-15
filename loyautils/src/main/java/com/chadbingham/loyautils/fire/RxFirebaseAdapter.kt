@@ -1,7 +1,6 @@
 package com.chadbingham.loyautils.fire
 
 import com.chadbingham.loyautils.rx.Event
-import com.chadbingham.loyautils.rx.ScheduleFirebase
 import com.google.firebase.database.*
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable

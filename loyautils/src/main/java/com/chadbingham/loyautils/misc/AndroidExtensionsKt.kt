@@ -23,14 +23,14 @@ inline fun fromApi(fromVersion: Int, action: () -> Unit, inclusive: Boolean = tr
 }
 
 fun Context.drawable(drawableId: Int): Drawable {
-    return ContextCompat.getDrawable(this, drawableId)
+    return ContextCompat.getDrawable(this, drawableId)!!
 }
 
 fun Context.bitmap(drawableId: Int): Bitmap {
     val options = BitmapFactory.Options()
     options.inScaled = false
 
-    var drawable = ContextCompat.getDrawable(this, drawableId)
+    var drawable = ContextCompat.getDrawable(this, drawableId)!!
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
         drawable = DrawableCompat.wrap(drawable).mutate()
     }

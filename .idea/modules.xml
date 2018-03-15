@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/LoyalUtils.iml" filepath="$PROJECT_DIR$/LoyalUtils.iml" />
       <module fileurl="file://$PROJECT_DIR$/LoyalUtilsApp.iml" filepath="$PROJECT_DIR$/LoyalUtilsApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/loyautils/loyautils.iml" filepath="$PROJECT_DIR$/loyautils/loyautils.iml" />
