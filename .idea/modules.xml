@@ -6,6 +6,7 @@
       <module fileurl="file://$PROJECT_DIR$/LoyalUtilsApp.iml" filepath="$PROJECT_DIR$/LoyalUtilsApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/loyautils/loyautils.iml" filepath="$PROJECT_DIR$/loyautils/loyautils.iml" />
+      <module fileurl="file://$PROJECT_DIR$/viewfinder/viewfinder.iml" filepath="$PROJECT_DIR$/viewfinder/viewfinder.iml" />
     </modules>
   </component>
 </project>
